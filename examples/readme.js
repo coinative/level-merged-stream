@@ -23,10 +23,8 @@ db.batch()
         { start: 'c', end: 'd' }
       ],
       // Ignore the first character for sorting
-      comparator: function (x, y) {
-        x = x.slice(1);
-        y = y.slice(1);
-        return x > y ? 1 : x < y ? -1 : 0;
+      subkey: function (key) {
+        return key.slice(1);
       },
       skip: 1,
       limit: 2

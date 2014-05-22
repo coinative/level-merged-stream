@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/coinative/level-merged-stream.svg?branch=master)](https://travis-ci.org/coinative/level-merged-stream) [![Coverage Status](https://img.shields.io/coveralls/coinative/level-merged-stream.svg)](https://coveralls.io/r/coinative/level-merged-stream?branch=master)
 
-A [LevelUP](https://github.com/rvagg/node-levelup) plugin to merge multiple ranges into a single sorted stream. Useful when doing range queries against multiple key-based secondary indexes. Supports standard LevelUP stream options and naïve pagination via a `skip` option.
+A [LevelUP](https://github.com/rvagg/node-levelup) plugin to merge multiple ranges into a single sorted stream using a subkey for ordering. Useful when doing range queries against multiple key-based secondary indexes. Supports standard LevelUP stream options and naïve pagination via a `skip` option.
 
 ## Install
 
@@ -34,11 +34,15 @@ db = mergedStream(db);
 
 As per [`db.createReadStream()`](https://github.com/rvagg/node-levelup/blob/master/README.md#createReadStream) but with the following additional options:
 
-* `'ranges'`: an array of `start`/`end` pairs as you'd use in `createReadStream`. Each range is streamed and merged in the order defined by `comparator`.
+* `'ranges'` *(array)*: The `start`/`end` ranges as you'd provide to `createReadStream`. Each range is streamed and merged according to the value privided by `subkey`. Each range must be ordered by `subkey`, i.e. any range prefix must be constant for the entire range for overall ordering to be consistent.
 
-* `'comparator'`: a key comparator function. This defines the sort order of the resulting merged stream. If not specified results are sorted via a basic comparator function (which significantly limits it's usefulness).
+* `'subkey'` *(function, default: identity)*): Selects the subkey from the key that is used for ordering the results.
 
-* `'skip'` *(number, default: `0`)*: the number of results to skip in the merged stream. Useful for pagination when also using `limit`.
+* `'comparator'` *(function, default: primitive comparison)*: A subkey comparator function if primitive comparison is insufficient, .e.g. for Buffers or custom keys.
+
+* `'dedupe'` *(boolean, default: `false`)*: If `true`, when two or more subkeys are considered equal, only the first result will be streamed. The key and/or value returned could come from any underlying range stream.
+
+* `'skip'` *(number, default: `0`)*: The number of results to skip in the merged stream. Useful for pagination when also using `limit`.
 
 --------------------------------------------------------
 <a name="createMergedKeyStream"></a>
@@ -54,7 +58,7 @@ As per [`db.createValueStream()`](https://github.com/rvagg/node-levelup/blob/mas
 
 --------------------------------------------------------
 
-## Examaple
+## Example
 
 `examples/readme.js`:
 ```js
@@ -83,10 +87,8 @@ db.batch()
         { start: 'c', end: 'd' }
       ],
       // Ignore the first character for sorting
-      comparator: function (x, y) {
-        x = x.slice(1);
-        y = y.slice(1);
-        return x > y ? 1 : x < y ? -1 : 0;
+      subkey: function (key) {
+        return key.slice(1);
       },
       skip: 1,
       limit: 2

@@ -36,11 +36,9 @@ describe('level-merged-stream', function () {
     db.close(done);
   });
 
-  // Sort from the second character
-  function comparator(x, y) {
-    x = x.slice(1);
-    y = y.slice(1);
-    return x > y ? 1 : x < y ? -1 : 0;
+  // Ignore the first character for sorting
+  function subkey(key) {
+    return key.slice(1);
   }
 
   describe('createMergedRangeStream', function () {
@@ -48,7 +46,7 @@ describe('level-merged-stream', function () {
       var results = [];
       db.mergedReadStream({
         ranges: [ { start: 'c', end: 'd' }],
-        comparator: comparator
+        subkey: subkey
       })
         .on('data', function (data) {
           results.push(data.value);
@@ -63,7 +61,7 @@ describe('level-merged-stream', function () {
       var results = [];
       db.mergedReadStream({
         ranges: [ { start: 'a', end: 'b' }, { start: 'c', end: 'd' }],
-        comparator: comparator
+        subkey: subkey
       })
         .on('data', function (data) {
           results.push(data.value);
@@ -78,7 +76,7 @@ describe('level-merged-stream', function () {
       var results = [];
       db.mergedReadStream({
         ranges: ranges,
-        comparator: comparator
+        subkey: subkey
       })
         .on('data', function (data) {
           results.push(data.value);
@@ -93,7 +91,7 @@ describe('level-merged-stream', function () {
       var results = [];
       var stream = db.mergedReadStream({
         ranges: ranges,
-        comparator: comparator
+        subkey: subkey
       });
       stream
         .on('data', function (data) {
@@ -112,7 +110,7 @@ describe('level-merged-stream', function () {
       var results = [];
       var stream = db.mergedReadStream({
         ranges: ranges,
-        comparator: comparator,
+        subkey: subkey,
         limit: 4
       });
       stream
@@ -129,7 +127,7 @@ describe('level-merged-stream', function () {
       var results = [];
       var stream = db.mergedReadStream({
         ranges: ranges,
-        comparator: comparator,
+        subkey: subkey,
         skip: 3,
         limit: 3
       });
@@ -167,8 +165,8 @@ describe('level-merged-stream', function () {
       var results = [];
       var stream = db.mergedReadStream({
         ranges: [{ start: { prefix: 'a' }, end: { prefix: 'a', value: '4' } }, { start: { prefix: 'c' } }],
-        comparator: function (x, y) {
-          return x.value > y.value ? 1 : x.value < y.value ? -1 : 0;
+        subkey: function (key) {
+          return key.value;
         },
         skip: 1,
         limit: 3,
@@ -214,27 +212,27 @@ describe('level-merged-stream', function () {
         });
     });
 
-    it('should return comparator duplicates (unordered)', function (done) {
+    it('should return subkey duplicates (unordered)', function (done) {
       db.put('b0', '9', function () {
         var results = [];
         db.mergedReadStream({
           ranges: ranges,
-          comparator: comparator,
+          subkey: subkey,
           limit: 4
         })
           .on('data', function (data) {
-            results.push(data.value);
+            results.push(data.key);
           })
           .on('end', function () {
             // Since both a0 and b0 will be equal, we aren't guaranteed of their
             // ordering, so only assert on their presence
-            expect(results.sort()).to.deep.equal(['0', '1', '2', '9']);
+            expect(results.sort()).to.deep.equal(['a0', 'b0', 'b2', 'c1']);
             done();
           });
       });
     });
 
-    it('should return range duplicates (unordered) for default comparator', function (done) {
+    it('should return range duplicates (unordered) for default subkey', function (done) {
       db.put('b0', '9', function () {
         var results = [];
         db.mergedReadStream({
@@ -250,11 +248,47 @@ describe('level-merged-stream', function () {
       });
     });
 
+    it('should not return range duplicates when dedupe specified', function (done) {
+      db.put('b0', '9', function () {
+        var results = [];
+        db.mergedReadStream({
+          ranges: [{ start: 'a', end: 'b' }, { start: 'a', end: 'b' }],
+          dedupe: true
+        })
+          .on('data', function (data) {
+            results.push(data.key);
+          })
+          .on('end', function () {
+            expect(results).to.deep.equal(['a0', 'a4', 'a5']);
+            done();
+          });
+      });
+    });
+
+    it('should not return duplicates when dedupe specified for single stream', function (done) {
+      db.put('d6', '6', function () {
+        var results = [];
+        db.mergedReadStream({
+          start: 'c6',
+          subkey: subkey,
+          dedupe: true
+        })
+          .on('data', function (data) {
+            results.push(data.key);
+          })
+          .on('end', function () {
+            // We should be missing 'd6' as it's subkey is equal to 'c6'
+            expect(results).to.deep.equal(['c6']);
+            done();
+          });
+      });
+    });
+
     it('should provide enough source stream results to meet skip & limit', function (done) {
       var results = [];
       db.mergedReadStream({
         ranges: ranges,
-        comparator: comparator,
+        subkey: subkey,
         skip: 3,
         limit: 1
       })
@@ -262,9 +296,29 @@ describe('level-merged-stream', function () {
           results.push(data.value);
         })
         .on('end', function () {
-          // If createReadStream limit was set to 1 and not 3 + 1, we'd get []
-          // and not ['3'] because the 'b' stream would already have ended
+          // If createReadStream limit was set to 1 the 'b' stream would end
+          // before we received 'b3'
           expect(results).to.deep.equal(['3']);
+          done();
+        });
+    });
+
+    it('should allow custom comparator', function (done) {
+      var results = [];
+      db.mergedReadStream({
+        ranges: ranges,
+        subkey: function (key) {
+          return [key[0], parseInt(key.slice(1))];
+        },
+        comparator: function (x, y) {
+          return x[1] > y[1] ? 1 : x[1] < y[1] ? -1 : 0;
+        }
+      })
+        .on('data', function (data) {
+          results.push(data.value);
+        })
+        .on('end', function () {
+          expect(results).to.deep.equal(['0', '1', '2', '3', '4', '5', '6']);
           done();
         });
     });
@@ -275,7 +329,7 @@ describe('level-merged-stream', function () {
       var results = [];
       db.mergedKeyStream({
         ranges: ranges,
-        comparator: comparator
+        subkey: subkey
       })
         .on('data', function (data) {
           results.push(data);
@@ -292,7 +346,7 @@ describe('level-merged-stream', function () {
       var results = [];
       db.mergedValueStream({
         ranges: ranges,
-        comparator: comparator
+        subkey: subkey
       })
         .on('data', function (data) {
           results.push(data);
