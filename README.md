@@ -1,6 +1,6 @@
 # @coinative/level-merged-stream
 
-[![Build Status](https://travis-ci.org/coinative/level-merged-stream.svg?branch=master)](https://travis-ci.org/coinative/level-merged-stream) [![Coverage Status](https://coveralls.io/repos/coinative/level-merged-stream/badge.png?branch=master)](https://coveralls.io/r/coinative/level-merged-stream?branch=master)
+[![Build Status](https://travis-ci.org/coinative/level-merged-stream.svg?branch=master)](https://travis-ci.org/coinative/level-merged-stream) [![Coverage Status](https://img.shields.io/coveralls/coinative/level-merged-stream.svg)](https://coveralls.io/r/coinative/level-merged-stream?branch=master)
 
 A [LevelUP](https://github.com/rvagg/node-levelup) plugin to merge multiple ranges into a single sorted stream. Useful when doing range queries against multiple key-based secondary indexes. Supports standard LevelUP stream options and naïve pagination via a `skip` option.
 
