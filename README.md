@@ -36,7 +36,7 @@ As per [`db.createReadStream()`](https://github.com/rvagg/node-levelup/blob/mast
 
 * `'ranges'` *(array)*: The `start`/`end` ranges as you'd provide to `createReadStream`. Each range is streamed and merged according to the value privided by `subkey`. Each range must be ordered by `subkey`, i.e. any range prefix must be constant for the entire range for overall ordering to be consistent.
 
-* `'subkey'` *(function, default: identity)*): Selects the subkey from the key that is used for ordering the results.
+* `'subkey'` *(function, default: identity)*: Selects the subkey from the key that is used for ordering the results.
 
 * `'comparator'` *(function, default: primitive comparison)*: A subkey comparator function if primitive comparison is insufficient, .e.g. for Buffers or custom keys.
 
