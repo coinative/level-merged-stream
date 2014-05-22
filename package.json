@@ -1,0 +1,34 @@
+{
+  "name": "level-merged-stream",
+  "version": "0.0.1",
+  "description": "",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/coinative/level-merged-stream.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/coinative/level-merged-stream/issues"
+  },
+  "homepage": "https://github.com/coinative/level-merged-stream",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha -r ./test/support/env -R dot ./test",
+    "test-cov": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- -r ./test/support/env -R dot ./test",
+    "test-travis": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -r ./test/support/env -R spec ./test"
+  },
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "istanbul": "^0.2.10",
+    "level": "^0.18.0",
+    "mocha": "^1.19.0"
+  },
+  "dependencies": {
+    "limit-stream": "^2.0.0",
+    "mergesort-stream": "0.0.3",
+    "offset-stream": "0.0.0",
+    "through": "^2.3.4",
+    "xtend": "^3.0.0"
+  }
+}
