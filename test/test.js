@@ -246,6 +246,25 @@ describe('level-merged-stream', function () {
           });
       });
     });
+
+    it('should provide enough source stream results to meet skip & limit', function (done) {
+      var results = [];
+      db.mergedReadStream({
+        ranges: ranges,
+        comparator: comparator,
+        skip: 3,
+        limit: 1
+      })
+        .on('data', function (data) {
+          results.push(data.value);
+        })
+        .on('end', function () {
+          // If createReadStream limit was set to 1 and not 3 + 1, we'd get []
+          // and not ['3'] because the 'b' stream would already have ended
+          expect(results).to.deep.equal(['3']);
+          done();
+        });
+    });
   });
 
   describe('createMergedKeyStream', function () {
