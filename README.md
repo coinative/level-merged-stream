@@ -41,7 +41,7 @@ db.batch()
         { start: 'c', end: 'd' }
       ],
       // Ignore the first character for sorting
-      comparitor: function (x, y) {
+      comparator: function (x, y) {
         x = x.slice(1);
         y = y.slice(1);
         return x > y ? 1 : x < y ? -1 : 0;

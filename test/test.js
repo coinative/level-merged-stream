@@ -37,7 +37,7 @@ describe('level-merged-stream', function () {
   });
 
   // Sort from the second character
-  function comparitor(x, y) {
+  function comparator(x, y) {
     x = x.slice(1);
     y = y.slice(1);
     return x > y ? 1 : x < y ? -1 : 0;
@@ -48,7 +48,7 @@ describe('level-merged-stream', function () {
       var results = [];
       db.mergedReadStream({
         ranges: [ { start: 'c', end: 'd' }],
-        comparitor: comparitor
+        comparator: comparator
       })
         .on('data', function (data) {
           results.push(data.value);
@@ -63,7 +63,7 @@ describe('level-merged-stream', function () {
       var results = [];
       db.mergedReadStream({
         ranges: [ { start: 'a', end: 'b' }, { start: 'c', end: 'd' }],
-        comparitor: comparitor
+        comparator: comparator
       })
         .on('data', function (data) {
           results.push(data.value);
@@ -78,7 +78,7 @@ describe('level-merged-stream', function () {
       var results = [];
       db.mergedReadStream({
         ranges: ranges,
-        comparitor: comparitor
+        comparator: comparator
       })
         .on('data', function (data) {
           results.push(data.value);
@@ -93,7 +93,7 @@ describe('level-merged-stream', function () {
       var results = [];
       var stream = db.mergedReadStream({
         ranges: ranges,
-        comparitor: comparitor
+        comparator: comparator
       });
       stream
         .on('data', function (data) {
@@ -112,7 +112,7 @@ describe('level-merged-stream', function () {
       var results = [];
       var stream = db.mergedReadStream({
         ranges: ranges,
-        comparitor: comparitor,
+        comparator: comparator,
         limit: 4
       });
       stream
@@ -129,7 +129,7 @@ describe('level-merged-stream', function () {
       var results = [];
       var stream = db.mergedReadStream({
         ranges: ranges,
-        comparitor: comparitor,
+        comparator: comparator,
         skip: 3,
         limit: 3
       });
@@ -167,7 +167,7 @@ describe('level-merged-stream', function () {
       var results = [];
       var stream = db.mergedReadStream({
         ranges: [{ start: { prefix: 'a' }, end: { prefix: 'a', value: '4' } }, { start: { prefix: 'c' } }],
-        comparitor: function (x, y) {
+        comparator: function (x, y) {
           return x.value > y.value ? 1 : x.value < y.value ? -1 : 0;
         },
         skip: 1,
@@ -211,12 +211,12 @@ describe('level-merged-stream', function () {
         });
     });
 
-    it('should return comparitor duplicates (unordered)', function (done) {
+    it('should return comparator duplicates (unordered)', function (done) {
       db.put('b0', '9', function () {
         var results = [];
         db.mergedReadStream({
           ranges: ranges,
-          comparitor: comparitor,
+          comparator: comparator,
           limit: 4
         })
           .on('data', function (data) {
@@ -231,7 +231,7 @@ describe('level-merged-stream', function () {
       });
     });
 
-    it('should return range duplicates (unordered) for default comparitor', function (done) {
+    it('should return range duplicates (unordered) for default comparator', function (done) {
       db.put('b0', '9', function () {
         var results = [];
         db.mergedReadStream({
@@ -253,7 +253,7 @@ describe('level-merged-stream', function () {
       var results = [];
       db.mergedKeyStream({
         ranges: ranges,
-        comparitor: comparitor
+        comparator: comparator
       })
         .on('data', function (data) {
           results.push(data);
@@ -270,7 +270,7 @@ describe('level-merged-stream', function () {
       var results = [];
       db.mergedValueStream({
         ranges: ranges,
-        comparitor: comparitor
+        comparator: comparator
       })
         .on('data', function (data) {
           results.push(data);
