@@ -199,14 +199,17 @@ describe('level-merged-stream', function () {
         });
     });
 
-    it('should fallback to createReadStream', function (done) {
+    it('should fallback to createReadStream but allow skip and limit', function (done) {
       var results = [];
-      db.mergedReadStream()
+      db.mergedReadStream({
+        skip: 2,
+        limit: 3
+      })
         .on('data', function (data) {
           results.push(data.key);
         })
         .on('end', function () {
-          expect(results).to.deep.equal(['a0', 'a4', 'a5', 'b2', 'b3', 'c1', 'c6']);
+          expect(results).to.deep.equal(['a5', 'b2', 'b3']);
           done();
         });
     });
