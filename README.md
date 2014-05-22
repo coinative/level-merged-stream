@@ -40,7 +40,7 @@ As per [`db.createReadStream()`](https://github.com/rvagg/node-levelup/blob/mast
 
 * `'comparator'` *(function, default: primitive comparison)*: A subkey comparator function if primitive comparison is insufficient, .e.g. for Buffers or custom keys.
 
-* `'dedupe'` *(boolean, default: `false`)*: If `true`, when two or more subkeys are considered equal, only the first result will be streamed. The key and/or value returned could come from any underlying range stream.
+* `'dedupe'` *(boolean/function, default: `false`)*: If `true`, when two or more subkeys are considered equal, only the first result will be streamed. The key and/or value returned could come from any underlying range stream. If a function, it should return `true` if two keys passed are considered equal for deduplication purposes.
 
 * `'skip'` *(number, default: `0`)*: The number of results to skip in the merged stream. Useful for pagination when also using `limit`.
 

@@ -322,6 +322,40 @@ describe('level-merged-stream', function () {
           done();
         });
     });
+
+    it('should allow custom dedupe comparator', function (done) {
+      db.close(function () {
+        level.destroy(location, function () {
+          db.open(function () {
+            db.batch()
+              .put('a0x', '0')
+              .put('c1x', '1')
+              .put('b2y', '2')
+              .put('b3y', '3')
+              .put('a4y', '4')
+              .put('a5z', '5')
+              .put('c6z', '6')
+              .write(function () {
+                var results = [];
+                db.mergedReadStream({
+                  ranges: ranges,
+                  subkey: subkey,
+                  dedupe: function (x, y) {
+                    return x[2] === y[2];
+                  }
+                })
+                  .on('data', function (data) {
+                    results.push(data.value);
+                  })
+                  .on('end', function () {
+                    expect(results).to.have.length(3);
+                    done();
+                  });
+              });
+          });
+        });
+      });
+    });
   });
 
   describe('createMergedKeyStream', function () {
@@ -338,6 +372,40 @@ describe('level-merged-stream', function () {
           expect(results).to.deep.equal(['a0', 'c1', 'b2', 'b3', 'a4', 'a5', 'c6']);
           done();
         });
+    });
+
+    it('should allow custom dedupe comparator', function (done) {
+      db.close(function () {
+        level.destroy(location, function () {
+          db.open(function () {
+            db.batch()
+              .put('a0x', '0')
+              .put('c1x', '1')
+              .put('b2y', '2')
+              .put('b3y', '3')
+              .put('a4y', '4')
+              .put('a5z', '5')
+              .put('c6z', '6')
+              .write(function () {
+                var results = [];
+                db.mergedKeyStream({
+                  ranges: ranges,
+                  subkey: subkey,
+                  dedupe: function (x, y) {
+                    return x[2] === y[2];
+                  }
+                })
+                  .on('data', function (data) {
+                    results.push(data.value);
+                  })
+                  .on('end', function () {
+                    expect(results).to.have.length(3);
+                    done();
+                  });
+              });
+          });
+        });
+      });
     });
   });
 
