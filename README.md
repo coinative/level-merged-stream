@@ -14,6 +14,48 @@ npm install coinative/level-merged-stream
 
 ## Usage
 
+Given a LevelUP instance `db`:
+```js
+var mergedStream = require('level-merged-stream');
+
+db = mergedStream(db);
+```
+
+## API
+
+* <a href="#createMergedReadStream"><code>db.<b>createMergedReadStream()</b></code></a>
+* <a href="#createMergedKeyStream"><code>db.<b>createMergedKeyStream()</b></code></a>
+* <a href="#createMergedValueStream"><code>db.<b>createMergedValueStream()</b></code></a>
+
+--------------------------------------------------------
+
+<a name="createMergedReadStream"></a>
+### db.createMergedReadStream([options])
+
+As per [`db.createReadStream()`](https://github.com/rvagg/node-levelup/blob/master/README.md#createReadStream) but with the following additional options:
+
+* `'ranges'`: an array of `start`/`end` pairs as you'd use in `createReadStream`. Each range is streamed and merged in the order defined by `comparator`.
+
+* `'comparator'`: a key comparator function. This defines the sort order of the resulting merged stream. If not specified results are sorted via a basic comparator function (which significantly limits it's usefulness).
+
+* `'skip'` *(number, default: `0`)*: the number of results to skip in the merged stream. Useful for pagination when also using `limit`.
+
+--------------------------------------------------------
+<a name="createMergedKeyStream"></a>
+### db.createMergedKeyStream([options])
+
+As per [`db.createKeyStream()`](https://github.com/rvagg/node-levelup/blob/master/README.md#createKeyStream) this streams only the keys.
+
+--------------------------------------------------------
+<a name="createMergedValueStream"></a>
+### db.createMergedValueStream([options])
+
+As per [`db.createValueStream()`](https://github.com/rvagg/node-levelup/blob/master/README.md#createValueStream) this streams only the values.
+
+--------------------------------------------------------
+
+## Examaple
+
 `examples/readme.js`:
 ```js
 var path = require('path');
