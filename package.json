@@ -1,13 +1,13 @@
 {
   "name": "level-merged-stream",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/coinative/level-merged-stream.git"
   },
-  "author": "",
+  "author": "Ben Shepheard <ben@coinative.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/coinative/level-merged-stream/issues"

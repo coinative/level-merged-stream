@@ -1,4 +1,4 @@
-# @coinative/level-merged-stream
+# level-merged-stream
 
 [![Build Status](https://travis-ci.org/coinative/level-merged-stream.svg?branch=master)](https://travis-ci.org/coinative/level-merged-stream) [![Coverage Status](https://img.shields.io/coveralls/coinative/level-merged-stream.svg)](https://coveralls.io/r/coinative/level-merged-stream?branch=master)
 
@@ -9,7 +9,7 @@ A [LevelUP](https://github.com/rvagg/node-levelup) plugin to merge multiple rang
 Not currently hosted on npmjs.org. Take this module as a git dependency via:
 
 ```
-npm install coinative/level-merged-stream
+npm install level-merged-stream
 ```
 
 ## Usage
